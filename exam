@@ -1,0 +1,57 @@
+
+
+from configuracion import varmongo
+from mongodb import PyMongo
+
+def consultar_materias():
+    obj_PyMongo = PyMongo(varmongo)
+    print(" == CONSULTAR MATERIAS POR ESTUDIANTE ==")
+    ctrl = input("Dame el numero de control: ")
+    filtro = {'control':ctrl}
+    atributos_estudiante = {"_id":0, "nombre":1}
+    atributos_kardex = {"_id":0, "materia":1, "calificacion":1}
+
+    obj_PyMongo.conectar_mongodb()
+    respuesta1 = obj_PyMongo.consulta_mongodb('estudiantes',filtro,atributos_estudiante)
+    respuesta2 = obj_PyMongo.consulta_mongodb('kardex',filtro, atributos_kardex)
+
+    p1 = obj_PyMongo.consulta_mongodb('estudiantes', filtro, atributos_estudiante)
+    p2 = obj_PyMongo.consulta_mongodb('kardex', filtro, atributos_kardex)
+
+    print(f"{p1}{p2}")
+
+
+
+    obj_PyMongo.desconectar_mongodb()
+
+    if respuesta1["status"] and respuesta2["status"]:
+        print("Estudiante: ", respuesta1["resultado"][0]["nombre"])
+        for mat in respuesta2["resultado"]:
+            print(mat["materia"], mat["calificacion"])
+
+
+def promedio_estudiante(promedios, ctrl):
+    for prom in promedios:
+        if(prom['_id'] == ctrl):
+            return prom['promedio']
+    return 0
+
+def menu():
+    while True:
+        print(" ===============  Menú Principal  ===================")
+        print("1. Consultar materias por estudiante")
+        print("2. Salir")
+        print("Dame la opcion que deseas? ")
+        try:
+            opcion = int(input(""))
+        except Exception as error:
+            print("ERROR: ", error)
+            break
+        else:
+            if opcion == 1:
+                consultar_materias()
+            elif opcion == 2:
+                break
+            else:
+                print("Opcion incorrecta ")
+menu()
