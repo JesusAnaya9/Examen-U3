@@ -1,0 +1,57 @@
+import json
+
+from configuracion import varmongo
+from crudmysql import MySQL
+from env import variables
+from mongodb import PyMongo
+
+
+def consultar_materias():
+    obj_MySQL = MySQL(variables) # *********************************
+    print(" == CONSULTAR MATERIAS POR ESTUDIANTE ==")
+    ctrl = input("Dame el numero de control: ")
+    sql_materias =f"SELECT estudiantes.nombre, kardex.materia, kardex.calificacion FROM estudiantes , kardex WHERE estudiantes.control = kardex.control and kardex.control='{ctrl}';"
+    obj_MySQL.conectar_mysql()
+    resp = obj_MySQL.consulta_sql(sql_materias)
+    obj_MySQL.desconectar_mysql()
+    if resp:
+        print("Estudiante: ", resp[0][0])
+        for mat in resp:
+            print("Materia: ",mat[1], " Calificación: ", mat[2])
+    else:
+        print (f"El estudiante con Número de control: {ctrl} NO existe")
+
+    dir = {}
+    directorio=[]
+    dir["nombre"] = resp[0][0]
+
+    for mat in resp:
+        temp={}
+        temp["materia"]=mat[1]
+        temp["calificacion"]=int(mat[2])
+        directorio.append(temp)
+        dir["materias"]=directorio
+        alumno = json.dumps(dir)
+    # print(dir)
+    print(alumno)
+
+def menu():
+    while True:
+        print(" ===============  Menú Principal  ===================")
+        print("1. Consultar materia aprobadas")
+        print("3. Salir")
+        print("Dame la opcion que deseas? ")
+        try:
+            opcion = int(input(""))
+        except Exception as error:
+            print("ERROR: ", error)
+            break
+        else:
+            if opcion == 1:
+                consultar_materias()
+            elif opcion == 2:
+                break
+            else:
+                print("Opcion incorrecta ")
+
+menu()
